@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML>
+  <HEAD>
+    <TITLE>A frame document with CSS 2.1</TITLE>
+    <STYLE type="text/css" media="screen">
+      BODY { height: 8.5in } /* Required for percentage heights below */
+      #headerLinks {
+        position: fixed;
+        width: 100%;
+        height: 25px;
+        top: 0;
+        right: 0;
+        bottom: auto;
+        left: 0;
+        font-weight: bolder;
+        background-color: aqua;
+        text-align: right;
+      }
+      #headerLogo {
+        position: fixed;
+        background-image: url("resources/images/eshop.gif");
+		display: block;
+		width: 200px;
+		height: 93px;
+        top: 25px;
+        right: auto;
+        bottom: 0;
+        left: 0;
+      }
+      #headerMenu {
+        position: fixed;
+        width: auto;
+        height: 25px;
+        top: 25px;
+        right: 0;
+        bottom: 0;
+        left: 200px;
+        background-color: red;
+        text-align: right;
+        margin-top: 2em;
+      }
+      #headerFooter {
+        position: fixed;
+        width: 100%;
+        height: 20px;
+        top: 118px;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: blue;
+      }
+      #mainLeft {
+        position: fixed;
+        width: 100px;
+		height: 100%;
+        top: 138px;
+        right: auto;
+        bottom: 0;
+        left: 0;
+        background-color: green;
+      }
+      #mainContent {
+        position: fixed;
+        width: auto;
+        height: 100%;
+        top: 138px;
+        right: 0;
+        bottom: 0;
+        left: 100px;
+        background-color: olive;
+        text-align: justify;
+      }
+       #mainRight {
+        position: fixed;
+        width: 200px;
+		height: 100%;
+        top: 138px;
+        right: 0;
+        bottom: 0;
+        left: auto;
+        background-color: yellow;
+      }
+      #mainFooter {
+        position: fixed;
+        width: 100%;
+        height: 30px;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: blue;
+      }
+    </STYLE>
+  </HEAD>
+  <BODY>
+    <DIV id="headerLinks"><a href="${contextPath}/account/addCustomer">Create Account</a> |      
+					<a href="${contextPath}/account/login.do">Login</a></DIV>
+    <DIV id="headerLogo"></DIV>
+    <DIV id="headerMenu"><input type="button" value="Menu1"></input> |   <input type="button" value="Menu2"></input></DIV>
+    <DIV id="headerFooter"></DIV>
+    <DIV id="mainLeft"></DIV>
+    <DIV id="mainContent"></DIV>
+    <DIV id="mainRight"></DIV>
+    <DIV id="mainFooter"></DIV>
+  </BODY>
+</HTML>

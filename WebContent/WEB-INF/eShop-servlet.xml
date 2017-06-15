@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:flow="http://www.springframework.org/schema/webflow-config"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-3.0.xsd
+		http://www.springframework.org/schema/webflow-config
+		http://www.springframework.org/schema/webflow-config/spring-webflow-config-2.0.xsd
+		http://www.springframework.org/schema/util
+		http://www.springframework.org/schema/util/spring-util-3.0.xsd"
+	default-autowire="byName">
+		    
+	
+	<!-- ================================================================== -->
+	<!-- Spring MVC stuff                                                   -->
+	<!-- ================================================================== -->
+	
+    <!-- This activates post-processors for annotation-based config -->
+    <!-- http://www.infoq.com/articles/spring-2.5-part-1 -->
+    <context:annotation-config/>
+    
+    <!-- Scan for controllers and services -->
+	<context:component-scan base-package="com.eservice,com.eshop"/>
+	
+    <!-- Enables POJO @Controllers (like CartController) -->
+	<bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"/>
+	
+	<!-- Maps flow requests from DispatcherServlet to flowController -->
+	<bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<value>
+				/addToCart.do=flowController
+				/checkout.do=flowController
+				/account/login.do=flowController
+				/account/logout.do=flowController
+			</value>
+		</property>
+		<property name="alwaysUseFullPath" value="true"/>
+	</bean>
+	
+	<!-- Enables annotated methods on POJO @Controllers (like CartController) -->
+	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"/>
+	
+	<!-- Enables plain Controllers (e.g. FlowController) -->
+	<bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter"/>
+	
+	<!-- Maps a logical view name to a physical resource -->
+	<!-- <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix">
+		 <value>/WEB-INF/jsp/</value>
+		 </property>
+		<property name="suffix">
+		<value>.jsp</value>
+		</property>
+	</bean> -->
+	<bean id="viewResolver"	class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+		<property name="viewClass">
+			<value>
+				org.springframework.web.servlet.view.tiles2.TilesView
+			</value>
+		</property>
+	</bean>
+	<bean id="tilesConfigurer" class="org.springframework.web.servlet.view.tiles2.TilesConfigurer">
+		<property name="definitions">
+			<list>
+				<value>/WEB-INF/tiles.xml</value>
+			</list>
+		</property>
+	</bean>
+	<!-- ================================================================== -->
+	<!-- Spring Web Flow stuff                                              -->
+	<!-- ================================================================== -->
+	
+	<!-- Using FlowController instead of FlowHandlers; see SWF Reference Guide, section 9.5. -->
+	<bean id="flowController" class="org.springframework.webflow.mvc.servlet.FlowController">
+		<property name="flowExecutor" ref="flowExecutor"/>
+	</bean>
+    
+	<flow:flow-executor id="flowExecutor" flow-registry="flowRegistry"/>
+	
+	<!-- This creates an XmlFlowRegistryFactory bean -->
+	<flow:flow-registry id="flowRegistry" flow-builder-services="flowBuilderServices">
+		<flow:flow-location path="/WEB-INF/flows/addToCart.xml"/>
+		<flow:flow-location path="/WEB-INF/flows/checkout.xml"/>
+		<flow:flow-location path="/WEB-INF/flows/login.xml"/>
+		<flow:flow-location path="/WEB-INF/flows/logout.xml"/>
+	</flow:flow-registry>
+	
+	<flow:flow-builder-services id="flowBuilderServices" view-factory-creator="viewFactoryCreator"/>
+	
+	<bean id="viewFactoryCreator" class="org.springframework.webflow.mvc.builder.MvcViewFactoryCreator">
+		<property name="viewResolvers">
+			<list>
+				<ref bean="viewResolver"/>
+			</list>
+		</property>
+	</bean>
+
+
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>/configuration.properties</value>
+			</list>
+		</property>
+	</bean>
+	<!-- ================================================================== -->
+	<!-- Other beans                                                        -->
+	<!-- ================================================================== -->
+	
+	<!-- Autowired into CartServiceImpl -->
+	<!-- Create a proxy to generate session-scoped shopping carts -->
+	<bean id="shoppingCart" class="com.eshop.core.beans.ShoppingCart" scope="session">
+		<!-- This requires CGLIB -->
+		<aop:scoped-proxy/>
+	</bean>
+	
+	
+	<!-- Autowired into CartServiceImpl -->
+	<util:list id="shippingOptions">
+		<value>Standard Shipping (1 week) - Free</value>
+		<value>Expedited Shipping (3 days) - $19.95</value>
+		<value>Overnight Shipping - $59.95</value>
+	</util:list>
+	
+	<!-- Autowired into CartController -->
+	<util:list id="startupCriteriaList" value-type="java.lang.String">
+		<value>deliveryType</value>
+		<value>deliveryState</value>
+		<value>deliveryArea</value>
+	</util:list>
+	<!-- Autowired into CartService -->
+	<util:list id="shippingScheduleCriteriaList" value-type="java.lang.String">
+		<value>scheduleDay</value>
+		<value>scheduleTime</value>
+	</util:list>
+	<util:list id="shippingMethodCriteriaList" value-type="java.lang.String">
+		<value>shippingMainMethod</value>
+		<value>shippingSubMethod</value>
+	</util:list>
+	<bean id="startupHierarchyHome" class="java.lang.String">
+    	<constructor-arg value="DELIVERY LOCATION" />
+	</bean>
+	<bean id="startupHierarchyShop" class="java.lang.String">
+    	<constructor-arg value="SALE_ITEMS" />
+	</bean>
+	<bean id="startupHierarchySchedule" class="java.lang.String">
+    	<constructor-arg value="DELIVERY SCHEDULE" />
+	</bean>
+	<bean id="startupHierarchyShippingMethod" class="java.lang.String">
+    	<constructor-arg value="DELIVERY_METHOD" />
+	</bean>
+	<!-- This id is for default location to be loaded instead of asking to select the location -->
+	<bean id="startupHierarchyInitId" class="java.lang.Long">
+    	<constructor-arg value="48" />
+	</bean>
+	<util:map id="systemHierarchySetupList" key-type="java.lang.Long" value-type="java.lang.String" >
+		<entry key="36" value="DELIVERY LOCATION"></entry>
+		<entry key="37" value="SALE_ITEMS"></entry>
+		<entry key="38" value="DELIVERY SCHEDULE"></entry>
+		<entry key="39" value="DELIVERY_METHOD"></entry>
+		<entry key="40" value="PAYMENT_METHOD"></entry>
+	</util:map>
+	
+	<util:map id="titleList" key-type="java.lang.String" value-type="java.lang.String" >
+		<entry key="Mr" value="Mr"></entry>
+		<entry key="Ms" value="Ms"></entry>
+		<entry key="Miss" value="Miss"></entry>
+		<entry key="Mrs" value="Mrs"></entry>
+	</util:map>
+	<!-- Bean definitions -->
+	<bean id="customer" class="com.eservice.core.beans.User">
+		<property name="enabled" value="true" />
+		<property name="voiceContactDetailList">
+			<list value-type="com.eservice.core.beans.VoiceContact">
+				<ref bean="MobileVoiceContact" />
+				<ref bean="HomeVoiceContact" />
+				<ref bean="OfficeVoiceContact" />
+			</list>
+		</property>
+		<property name="locationContactDetailList">
+			<ref bean="MainLocationContact" />
+		</property>
+	</bean>
+
+	<bean id="MobileVoiceContact" class="com.eservice.core.beans.VoiceContact">
+		<property name="voiceContactType" value="Mobile" />
+		<property name="priorityLevel" value="1" />
+	</bean>
+	<bean id="HomeVoiceContact" class="com.eservice.core.beans.VoiceContact">
+		<property name="voiceContactType" value="Home" />
+		<property name="priorityLevel" value="2" />
+	</bean>
+	<bean id="OfficeVoiceContact" class="com.eservice.core.beans.VoiceContact">
+		<property name="voiceContactType" value="Office" />
+		<property name="priorityLevel" value="3" />
+	</bean>
+	<bean id="MainLocationContact" class="com.eservice.core.beans.LocationContact">
+		<property name="prioriyLevel" value="1" />
+	</bean>
+	<!--  Data Source Configurations -->
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName">
+			<value>${jdbc.driver.className}</value>
+		</property>
+		<property name="url">
+			<value>${jdbc.url}</value>
+		</property>
+		<property name="username">
+			<value>${jdbc.username}</value>
+		</property>
+		<property name="password">
+			<value>${jdbc.password}</value>
+		</property>
+	</bean>
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="packagesToScan" value="com.eservice.core.beans,com.eservice.hibernate.entities" />
+		<property name="hibernateProperties">
+			<props>
+				<!-- SQL dialect -->
+				<prop key="hibernate.dialect">${jdbc.hibernate.dialect}</prop>
+				<!-- Enable Hibernate's automatic session context management -->
+				<prop key="hibernate.current_session_context_class">thread</prop>
+				<!-- Drop and re-create the database schema on startup -->
+				<prop key="hibernate.hbm2ddl.auto">none</prop>
+				<!-- Echo all executed SQL to stdout -->
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.cache.use_query_cache">true</prop> 
+				<prop key="hibernate.cache.use_second_level_cache">true</prop>
+            	<prop key="hibernate.cache.provider_class">net.sf.ehcache.hibernate.SingletonEhCacheProvider</prop>
+           
+			</props>
+		</property>
+	</bean>
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
+	</bean>
+</beans>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow
+		http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
+	
+	<view-state id="loginPage" view="account/login">
+		<on-render>
+			<!-- Carry cart from Spring app context to request scope -->
+			<set name="requestScope.message" value="flowScope.message"/>
+			<set name="requestScope.shoppingCart" value="shoppingCart"/>
+			<set name="requestScope.startupHierarchyList" value="shoppingCart.startupHierarchyList"/>
+			<set name="requestScope.customer" value="shoppingCart.customer"/>
+		</on-render>
+		<transition on="loginSubmit" to="doLogin"></transition>
+	</view-state>
+	<view-state id="logoutPage" view="account/logout">
+		<on-render>
+			<evaluate expression="cartService.clearShoppingCart()" ></evaluate>
+		</on-render>
+		<transition to="goToHomePage"></transition>
+	</view-state>
+	<view-state id="goToHomePage" view="externalRedirect:contextRelative:/shop?id=0"></view-state>
+	<action-state id="doLogin" >
+		<evaluate expression="accountService.getCustomer(requestParameters.userName,requestParameters.password)" result="flowScope.customer" result-type="com.eservice.core.beans.User" ></evaluate>
+		<transition to="loginDecision" />
+	</action-state>
+	
+	<decision-state id="loginDecision">
+        <if test="flowScope.customer == null" then="loginFailed" else="loginOk" />
+    </decision-state>
+    
+    <action-state id="loginOk">
+    	<evaluate expression="shoppingCart.setCustomer(flowScope.customer)" />
+    	<transition to="loginOkRedirect" />
+    </action-state>
+    
+    <action-state id="loginFailed">
+    	<set name="flowScope.message" value="'Login Failed...Invalid Username or Password...'"/>
+    	<transition to="loginPage" />
+    </action-state>
+	<!-- See http://forum.springframework.org/showthread.php?t=51240 -->
+	<!-- Suppress leading slash to go servlet-relative? (Check docs) -->
+	<!-- View applies only when directly called; calling flows ignore it? -->
+	<end-state id="loginOkRedirect" view="externalRedirect:contextRelative:/initStartingSetup"/>
+</flow>

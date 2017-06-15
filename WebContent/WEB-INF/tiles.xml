@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+	<definition name="base.definition" template="/WEB-INF/jsp/mainLayout.jsp">
+		<put-attribute name="title" value="" />
+		<put-attribute name="header" value="header.definition" />
+		<put-attribute name="topNavigation" value="/WEB-INF/jsp/topNavigation.jsp" />
+		<put-attribute name="leftNavigation" value="/WEB-INF/jsp/leftNavigation.jsp" />
+		<put-attribute name="bodyContent" value="" />
+		<put-attribute name="rightNavigation" value="/WEB-INF/jsp/rightNavigation.jsp" />
+		<put-attribute name="footer" value="/WEB-INF/jsp/footer.jsp" />
+	</definition>
+
+	<definition name="header.definition" template="/WEB-INF/jsp/headerLayout.jsp">
+		<put-attribute name="headerLinks" value="/WEB-INF/jsp/headerLinks.jsp" />
+		<put-attribute name="banner" value="/WEB-INF/jsp/headerBanner.jsp" />
+		<put-attribute name="menu" value="/WEB-INF/jsp/headerMenu.jsp" />
+		<put-attribute name="headerFooter" value="/WEB-INF/jsp/headerFooter.jsp" />
+	</definition>
+	<definition name="home" extends="base.definition">
+		<put-attribute name="title" value="Welcome" />
+		<put-attribute name="bodyContent" value="/WEB-INF/jsp/home.jsp" />
+	</definition>
+	<definition name="shop" extends="base.definition">
+		<put-attribute name="title" value="Welcome" />
+		<put-attribute name="bodyContent" value="/WEB-INF/jsp/shop.jsp" />
+	</definition>
+	<definition name="viewcart" extends="base.definition">
+		<put-attribute name="title" value="View your Shopping Cart" />
+		<put-attribute name="bodyContent" value="/WEB-INF/jsp/viewcart.jsp" />
+	</definition>
+	<definition name="options" extends="base.definition">
+		<put-attribute name="title" value="Dlivery and Payments" />
+		<put-attribute name="bodyContent" value="/WEB-INF/jsp/options.jsp" />
+	</definition>
+	<definition name="account/addCustomer" extends="base.definition">
+		<put-attribute name="title" value="Register" />
+		<put-attribute name="bodyContent" value="/WEB-INF/jsp/account/addCustomer.jsp" />
+	</definition>
+	<definition name="account/login" extends="base.definition">
+		<put-attribute name="title" value="Login" />
+		<put-attribute name="bodyContent" value="/WEB-INF/jsp/account/login.jsp" />
+	</definition>
+	<definition name="account/logout" extends="base.definition">
+		<put-attribute name="title" value="Login" />
+		<put-attribute name="bodyContent" value="/WEB-INF/jsp/account/login.jsp" />
+	</definition>
+</tiles-definitions>
